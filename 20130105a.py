@@ -41,6 +41,11 @@ def main(args):
             hamdist = sum(1 for a, b in zip(si, sj) if a != b)
             mmu[i, j] = (mu ** hamdist) * ((1 - mu) ** (2 - hamdist))
 
+    # show the transition matrix
+    print 'transition matrix:'
+    print mmu
+    print
+
     # construct the population genetic transition matrix
     M = np.array(list(gen_states(N, k)))
     lmcs = omnomnomial.get_lmcs(M)
