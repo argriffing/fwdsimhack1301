@@ -29,8 +29,8 @@ def gen_states(N, k):
 def main(args):
 
     # initialize some variables
-    N = 2
-    mu = 0.005
+    N = args.N
+    mu = args.mu
     k = 4
 
     # construct the microstate mutational transition matrix
@@ -39,7 +39,7 @@ def main(args):
     for i, si in enumerate(ascii_states):
         for j, sj in enumerate(ascii_states):
             hamdist = sum(1 for a, b in zip(si, sj) if a != b)
-            mmu[i, j] = mu ** hamdist + (1 - mu) ** (2 - hamdist)
+            mmu[i, j] = (mu ** hamdist) * ((1 - mu) ** (2 - hamdist))
 
     # construct the population genetic transition matrix
     M = np.array(list(gen_states(N, k)))
