@@ -26,20 +26,40 @@ def gen_states(N, k):
             for suffix in gen_states(N-i, k-1):
                 yield [i] + suffix
 
+def hamdist(a, b):
+    return sum(1 for x, y in zip(a, b) if x != y)
+
+def get_jeff_mut_trans(ascii_states, mu):
+    k = len(ascii_states)
+    mmu = np.zeros((k, k))
+    for i, si in enumerate(ascii_states):
+        for j, sj in enumerate(ascii_states):
+            h = hamdist(si, sj)
+            mmu[i, j] = (mu ** h) * ((1 - mu) ** (2 - h))
+    return mmu
+
+def get_mut_rate_matrix(ascii_states):
+    k = len(ascii_states)
+    pre_Q = np.zeros((k, k))
+    for i, si in enumerate(ascii_states):
+        for j, sj in enumerate(ascii_states):
+            if hamdist(si, sj) == 1:
+                pre_Q[i, j] = 1
+    Q = pre_Q - np.diag(np.sum(pre_Q, axis=1))
+    return Q
+
 def main(args):
 
     # initialize some variables
     N = args.N
     mu = args.mu
-    k = 4
+    ascii_states = ['AB', 'Ab', 'aB', 'ab']
+    k = len(ascii_states)
 
     # construct the microstate mutational transition matrix
-    mmu = np.zeros((k, k))
-    ascii_states = ['AB', 'Ab', 'aB', 'ab']
-    for i, si in enumerate(ascii_states):
-        for j, sj in enumerate(ascii_states):
-            hamdist = sum(1 for a, b in zip(si, sj) if a != b)
-            mmu[i, j] = (mu ** hamdist) * ((1 - mu) ** (2 - hamdist))
+    #mmu = get_jeff_mut(ascii_states, mu)
+    Q = get_mut_rate_matrix(ascii_states)
+    mmu = scipy.linalg.expm(mu*Q)
 
     # show the transition matrix
     print 'transition matrix:'
